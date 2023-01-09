@@ -1,5 +1,5 @@
 // ignore: depend_on_referenced_packages
-import 'package:country_list_pick/country_list_pick.dart';
+import 'package:country_list_pick/country_selection.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const MyApp());
@@ -50,7 +50,7 @@ class MyAppState extends State<MyApp> {
               isShowTitle: true,
               isShowCode: true,
               isDownIcon: true,
-              showEnglishName: false,
+              isShowEnglishName: false,
               labelColor: Colors.blueAccent,
             ),
             initialSelection: '+62',
