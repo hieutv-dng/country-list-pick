@@ -112,7 +112,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
                       onVerticalDragUpdate: _onVerticalDragUpdate,
                       onVerticalDragStart: _onVerticalDragStart,
                       child: Container(
-                        height: 25.0 * _alphabet.length,
+                        height: 22.0 * _alphabet.length,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -140,13 +140,6 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Text(
-            widget.theme?.searchText ?? 'SEARCH',
-            style: TextStyle(color: widget.theme?.labelColor),
-          ),
-        ),
         Container(
           color: Theme.of(context).cardTheme.color,
           child: TextField(
@@ -157,7 +150,8 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
               enabledBorder: InputBorder.none,
               errorBorder: InputBorder.none,
               disabledBorder: InputBorder.none,
-              hintText: widget.theme?.searchHintText ?? "Search...",
+              prefixIcon: Icon(Icons.search),
+              hintText: widget.theme?.searchHintText ?? "Search country",
             ),
             onChanged: _filterElements,
           ),

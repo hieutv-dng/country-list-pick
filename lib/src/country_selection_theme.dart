@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class CountryTheme {
-  final String? searchText;
   final String? searchHintText;
   final String? lastPickText;
   final Color? alphabetSelectedBackgroundColor;
@@ -17,7 +16,6 @@ class CountryTheme {
 
   CountryTheme({
     this.labelColor,
-    this.searchText,
     this.searchHintText,
     this.lastPickText,
     this.alphabetSelectedBackgroundColor,
