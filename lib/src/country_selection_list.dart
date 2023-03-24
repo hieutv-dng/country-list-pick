@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 
 import 'country_selection_theme.dart';
-import 'support/code_countries_en.dart';
-import 'support/code_country.dart';
-import 'support/code_countrys.dart';
+import 'models/countries.dart';
+import 'models/country.dart';
 
 class CountrySelectionList extends StatefulWidget {
   CountrySelectionList({
     Key? key,
     this.initialSelection,
-    this.appBar,
     this.theme,
     this.countryBuilder,
+    this.isCurrency = false,
     this.isShowAlphabet = true,
   }) : super(key: key);
 
-  final PreferredSizeWidget? appBar;
-  final CountryCode? initialSelection;
+  final Country? initialSelection;
   final CountryTheme? theme;
-  final Widget Function(BuildContext context, CountryCode)? countryBuilder;
+  final Widget Function(BuildContext context, Country)? countryBuilder;
+  final bool isCurrency;
   final bool isShowAlphabet;
 
   @override
@@ -29,8 +28,8 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
   final _controller = TextEditingController();
   late final ScrollController _controllerScroll;
 
-  final _listOriginal = <CountryCode>[];
-  final _listDataShow = <CountryCode>[];
+  final _listOriginal = <Country>[];
+  final _listDataShow = <Country>[];
 
   var diff = 0.0;
   var posSelected = 0;
@@ -41,29 +40,23 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
   var _itemsizeheight = 50.0;
   double _offsetContainer = 0.0;
 
+  String get title => widget.isCurrency ? 'Currencies' : 'Countries';
+  String get searchHintText => widget.isCurrency ? 'Search currency' : 'Search country';
+
   @override
   void initState() {
-    List<Map> jsonList = widget.theme?.isShowEnglishName ?? true ? countriesEnglish : codes;
-    final countries = jsonList
-        .map((s) => CountryCode(
-              name: s['name'],
-              code: s['code'],
-              dialCode: s['dial_code'],
-              flagUri: 'flags/${s['code'].toLowerCase()}.png',
-            ))
-        .toList();
-    countries.sort((a, b) {
-      return a.name.toString().compareTo(b.name.toString());
+    countryList.sort((a, b) {
+      return a.name.compareTo(b.name);
     });
-    _listOriginal.addAll(countries);
-    _listDataShow.addAll(countries);
+    _listOriginal.addAll(countryList);
+    _listDataShow.addAll(countryList);
 
     _controllerScroll = ScrollController();
     _controllerScroll.addListener(_scrollListener);
     super.initState();
   }
 
-  void _sendDataBack(BuildContext context, CountryCode selection) {
+  void _sendDataBack(BuildContext context, Country selection) {
     Navigator.pop(context, selection);
   }
 
@@ -73,10 +66,10 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     return Scaffold(
-      appBar: widget.appBar ?? AppBar(title: Text("Select Country")),
+      appBar: AppBar(title: Text(title)),
       body: SafeArea(
         child: Container(
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).colorScheme.background,
           child: LayoutBuilder(builder: (context, contrainsts) {
             diff = mediaQuery.size.height - contrainsts.biggest.height;
             _heightscroller = (contrainsts.biggest.height) / _alphabet.length;
@@ -105,7 +98,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
                     )
                   ],
                 ),
-                if (widget.isShowAlphabet == true)
+                if (widget.isShowAlphabet)
                   Align(
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
@@ -144,6 +137,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
           color: Theme.of(context).cardTheme.color,
           child: TextField(
             controller: _controller,
+            style: Theme.of(context).textTheme.titleMedium,
             decoration: InputDecoration(
               border: InputBorder.none,
               focusedBorder: InputBorder.none,
@@ -151,7 +145,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
               errorBorder: InputBorder.none,
               disabledBorder: InputBorder.none,
               prefixIcon: Icon(Icons.search),
-              hintText: widget.theme?.searchHintText ?? "Search country",
+              hintText: widget.theme?.searchHintText ?? searchHintText,
             ),
             onChanged: _filterElements,
           ),
@@ -160,7 +154,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
     );
   }
 
-  Widget _buildLastPick(BuildContext context, CountryCode? lastPick) {
+  Widget _buildLastPick(BuildContext context, Country? lastPick) {
     if (lastPick == null) return SizedBox();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,9 +193,10 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
     );
   }
 
-  Widget _getListCountry(CountryCode e) {
+  Widget _getListCountry(Country e) {
     return Container(
       color: Theme.of(context).cardTheme.color,
+      padding: EdgeInsets.only(right: 22),
       child: Material(
         color: Colors.transparent,
         child: ListTile(
@@ -216,6 +211,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
             ],
           ),
           title: Text(e.name),
+          trailing: widget.isCurrency ? Text(e.currencyCode) : null,
           onTap: () {
             _sendDataBack(context, e);
           },
@@ -251,10 +247,8 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
               _alphabet[index],
               textAlign: TextAlign.center,
               style: (index == posSelected)
-                  ? Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(fontWeight: FontWeight.bold, color: widget.theme?.alphabetSelectedTextColor ?? Theme.of(context).backgroundColor)
+                  ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold, color: widget.theme?.alphabetSelectedTextColor ?? Theme.of(context).colorScheme.background)
                   : Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: widget.theme?.alphabetTextColor),
             ),
           ),
@@ -266,7 +260,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
   void _filterElements(String s) {
     setState(() {
       _listDataShow.clear();
-      _listDataShow.addAll(_listOriginal.where((e) => e.filterWith(s)));
+      _listDataShow.addAll(_listOriginal.where((e) => e.filterWith(s, isCurrency: widget.isCurrency)));
     });
   }
 

@@ -1,6 +1,7 @@
 name: country_list_pick
-description: Flutter plugin project to pick country code, will show code country, dial code, flag country, and name country.
-version: 1.0.0+2
+description: Flutter plugin project to pick country code, will show code
+  country, dial code, flag country, and name country.
+version: 2.0.0+1
 homepage: https://github.com/hieutv-dng/country-list-pick
 
 environment:
@@ -9,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:

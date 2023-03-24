@@ -1,8 +1,8 @@
-import 'package:country_list_pick/src/support/code_country.dart';
 import 'package:flutter/material.dart';
 
 import 'country_selection_list.dart';
 import 'country_selection_theme.dart';
+import 'models/country.dart';
 
 class CountryListPick extends StatefulWidget {
   CountryListPick({
@@ -12,14 +12,16 @@ class CountryListPick extends StatefulWidget {
     this.pickerBuilder,
     this.countryBuilder,
     this.theme,
+    this.isCurrency = false,
   });
 
   final String? initialSelection;
-  final ValueChanged<CountryCode?>? onChanged;
+  final ValueChanged<Country?>? onChanged;
   final PreferredSizeWidget? appBar;
-  final Widget Function(BuildContext context, CountryCode? countryCode)? pickerBuilder;
+  final Widget Function(BuildContext context, Country? country)? pickerBuilder;
   final CountryTheme? theme;
-  final Widget Function(BuildContext context, CountryCode countryCode)? countryBuilder;
+  final Widget Function(BuildContext context, Country country)? countryBuilder;
+  final bool isCurrency;
 
   @override
   _CountryListPickState createState() => _CountryListPickState();
@@ -28,22 +30,22 @@ class CountryListPick extends StatefulWidget {
 class _CountryListPickState extends State<CountryListPick> {
   _CountryListPickState();
 
-  CountryCode? selectedItem;
+  Country? selectedItem;
 
   @override
   void initState() {
     super.initState();
   }
 
-  void _awaitFromSelectScreen(BuildContext context, PreferredSizeWidget? appBar, CountryTheme? theme) async {
+  void _awaitFromSelectScreen(BuildContext context, CountryTheme? theme) async {
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => CountrySelectionList(
             initialSelection: selectedItem,
-            appBar: widget.appBar,
             theme: theme,
             countryBuilder: widget.countryBuilder,
+            isCurrency: widget.isCurrency,
           ),
         ));
 
@@ -57,7 +59,7 @@ class _CountryListPickState extends State<CountryListPick> {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
-        _awaitFromSelectScreen(context, widget.appBar, widget.theme);
+        _awaitFromSelectScreen(context, widget.theme);
       },
       child: widget.pickerBuilder != null
           ? widget.pickerBuilder!(context, selectedItem)
@@ -65,7 +67,7 @@ class _CountryListPickState extends State<CountryListPick> {
               direction: Axis.horizontal,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (widget.theme?.isShowFlag ?? true)
+                if (selectedItem != null && (widget.theme?.isShowFlag ?? true))
                   Flexible(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5.0),
@@ -83,7 +85,7 @@ class _CountryListPickState extends State<CountryListPick> {
                       child: Text(selectedItem.toString()),
                     ),
                   ),
-                if (widget.theme?.isShowTitle ?? true)
+                if (selectedItem != null && (widget.theme?.isShowTitle ?? true))
                   Flexible(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5.0),

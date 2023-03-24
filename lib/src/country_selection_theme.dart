@@ -11,7 +11,6 @@ class CountryTheme {
   final bool? isShowCode;
   final bool? isDownIcon;
   final String? initialSelection;
-  final bool isShowEnglishName;
   final Color? labelColor;
 
   CountryTheme({
@@ -26,6 +25,5 @@ class CountryTheme {
     this.isShowCode,
     this.isDownIcon,
     this.initialSelection,
-    this.isShowEnglishName = true,
   });
 }

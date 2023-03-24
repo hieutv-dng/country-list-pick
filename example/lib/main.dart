@@ -50,13 +50,13 @@ class MyAppState extends State<MyApp> {
               isShowTitle: true,
               isShowCode: true,
               isDownIcon: true,
-              isShowEnglishName: false,
               labelColor: Colors.blueAccent,
             ),
             initialSelection: '+62',
             // or
             // initialSelection: 'US'
-            onChanged: (CountryCode code) {
+            isCurrency: true,
+            onChanged: (Country code) {
               // print(code.name);
               // print(code.code);
               // print(code.dialCode);
