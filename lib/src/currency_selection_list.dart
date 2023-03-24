@@ -92,7 +92,12 @@ class _CurrencySelectionListState extends State<CurrencySelectionList> {
                       delegate: SliverChildBuilderDelegate((context, index) {
                         return widget.currencyBuilder != null
                             ? widget.currencyBuilder!(context, _listDataShow.elementAt(index))
-                            : _getListCurrency(_listDataShow.elementAt(index));
+                            : CurrencyItemView(
+                                currency: _listDataShow.elementAt(index),
+                                onTap: () {
+                                  _sendDataBack(context, _listDataShow.elementAt(index));
+                                },
+                              );
                       }, childCount: _listDataShow.length),
                     )
                   ],
@@ -162,54 +167,8 @@ class _CurrencySelectionListState extends State<CurrencySelectionList> {
           padding: const EdgeInsets.all(15.0),
           child: Text('LAST PICK'),
         ),
-        Container(
-          color: Theme.of(context).cardTheme.color,
-          child: Material(
-            color: Colors.transparent,
-            child: ListTile(
-              leading: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    CurrencyUtils.currencyToEmoji(lastPick),
-                    style: TextStyle(fontSize: 25),
-                  ),
-                ],
-              ),
-              title: Text(lastPick.name),
-              trailing: Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: Icon(Icons.check, color: Colors.green),
-              ),
-            ),
-          ),
-        ),
+        CurrencyItemView(currency: lastPick, isSelected: true),
       ],
-    );
-  }
-
-  Widget _getListCurrency(Currency e) {
-    return Container(
-      color: Theme.of(context).cardTheme.color,
-      padding: EdgeInsets.only(right: 22),
-      child: Material(
-        color: Colors.transparent,
-        child: ListTile(
-          leading: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                CurrencyUtils.currencyToEmoji(e),
-                style: TextStyle(fontSize: 25),
-              ),
-            ],
-          ),
-          title: Text('${e.code} - ${e.name}'),
-          onTap: () {
-            _sendDataBack(context, e);
-          },
-        ),
-      ),
     );
   }
 
@@ -289,5 +248,47 @@ class _CurrencySelectionListState extends State<CurrencySelectionList> {
 
     if ((_controllerScroll.offset) >= (_controllerScroll.position.maxScrollExtent)) {}
     if (_controllerScroll.offset <= _controllerScroll.position.minScrollExtent && !_controllerScroll.position.outOfRange) {}
+  }
+}
+
+class CurrencyItemView extends StatelessWidget {
+  const CurrencyItemView({
+    Key? key,
+    required this.currency,
+    this.onTap,
+    this.isSelected = false,
+  }) : super(key: key);
+
+  final Currency currency;
+  final VoidCallback? onTap;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).cardTheme.color,
+      child: Material(
+        color: Colors.transparent,
+        child: ListTile(
+          onTap: onTap,
+          leading: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                CurrencyUtils.currencyToEmoji(currency),
+                style: TextStyle(fontSize: 25),
+              ),
+            ],
+          ),
+          title: Text('${currency.code} - ${currency.name}'),
+          trailing: isSelected
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: Icon(Icons.check, color: Colors.green),
+                )
+              : null,
+        ),
+      ),
+    );
   }
 }
