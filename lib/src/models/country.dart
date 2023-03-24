@@ -41,12 +41,12 @@ class Country {
 
   String toCountryStringOnly() => '$name';
 
-  String genSearchQuery(bool isCurrency) {
-    final search = '$isoCode$phoneCode$name${isCurrency ? currencyCode : ''}';
+  String genSearchQuery() {
+    final search = '$isoCode$phoneCode$name';
     return removeDiacritics(search).toLowerCase();
   }
 
-  bool filterWith(String query, {bool isCurrency = false}) {
-    return genSearchQuery(isCurrency).contains(removeDiacritics(query).toLowerCase());
+  bool filterWith(String query) {
+    return genSearchQuery().contains(removeDiacritics(query).toLowerCase());
   }
 }

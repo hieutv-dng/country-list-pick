@@ -1,34 +1,31 @@
 import 'package:flutter/material.dart';
 
-import 'country_selection_theme.dart';
-import 'models/countries.dart';
-import 'models/country.dart';
-import 'models/country_utils.dart';
+import 'models/currencies.dart';
+import 'models/currency.dart';
+import 'models/currency_utils.dart';
 
-class CountrySelectionList extends StatefulWidget {
-  CountrySelectionList({
+class CurrencySelectionList extends StatefulWidget {
+  CurrencySelectionList({
     Key? key,
     this.initialSelection,
-    this.theme,
-    this.countryBuilder,
-    this.isShowAlphabet = true,
+    this.currencyBuilder,
+    this.isShowAlphabet = false,
   }) : super(key: key);
 
   final String? initialSelection;
-  final CountryTheme? theme;
-  final Widget Function(BuildContext context, Country)? countryBuilder;
+  final Widget Function(BuildContext context, Currency)? currencyBuilder;
   final bool isShowAlphabet;
 
   @override
-  _CountrySelectionListState createState() => _CountrySelectionListState();
+  _CurrencySelectionListState createState() => _CurrencySelectionListState();
 }
 
-class _CountrySelectionListState extends State<CountrySelectionList> {
+class _CurrencySelectionListState extends State<CurrencySelectionList> {
   final _controller = TextEditingController();
   late final ScrollController _controllerScroll;
 
-  final _listOriginal = <Country>[];
-  final _listDataShow = <Country>[];
+  final _listOriginal = <Currency>[];
+  final _listDataShow = <Currency>[];
 
   var diff = 0.0;
   var posSelected = 0;
@@ -39,10 +36,10 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
   var _itemsizeheight = 50.0;
   double _offsetContainer = 0.0;
 
-  Country? get _lastCountryPick {
+  Currency? get _lastCurrencyPick {
     if (widget.initialSelection?.isEmpty ?? true) return null;
     try {
-      return CountryUtils.getCountryByIsoCode(widget.initialSelection!);
+      return CurrencyUtils.getCurrencyByCurrencyCode(widget.initialSelection!);
     } catch (e) {
       return null;
     }
@@ -50,18 +47,15 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
 
   @override
   void initState() {
-    countryList.sort((a, b) {
-      return a.name.compareTo(b.name);
-    });
-    _listOriginal.addAll(countryList);
-    _listDataShow.addAll(countryList);
+    _listOriginal.addAll(currencyList);
+    _listDataShow.addAll(currencyList);
 
     _controllerScroll = ScrollController();
     _controllerScroll.addListener(_scrollListener);
     super.initState();
   }
 
-  void _sendDataBack(BuildContext context, Country selection) {
+  void _sendDataBack(BuildContext context, Currency selection) {
     Navigator.pop(context, selection);
   }
 
@@ -71,7 +65,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Countries')),
+      appBar: AppBar(title: Text('Currencies')),
       body: SafeArea(
         child: Container(
           color: Theme.of(context).colorScheme.background,
@@ -89,16 +83,16 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
                       child: Column(
                         children: [
                           _buildFilterField(context),
-                          _buildLastPick(context, _lastCountryPick),
+                          _buildLastPick(context, _lastCurrencyPick),
                         ],
                       ),
                     ),
                     SliverPadding(padding: EdgeInsets.all(10)),
                     SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
-                        return widget.countryBuilder != null
-                            ? widget.countryBuilder!(context, _listDataShow.elementAt(index))
-                            : _getListCountry(_listDataShow.elementAt(index));
+                        return widget.currencyBuilder != null
+                            ? widget.currencyBuilder!(context, _listDataShow.elementAt(index))
+                            : _getListCurrency(_listDataShow.elementAt(index));
                       }, childCount: _listDataShow.length),
                     )
                   ],
@@ -150,7 +144,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
               errorBorder: InputBorder.none,
               disabledBorder: InputBorder.none,
               prefixIcon: Icon(Icons.search),
-              hintText: widget.theme?.searchHintText ?? 'Search country',
+              hintText: 'Search currency',
             ),
             onChanged: _filterElements,
           ),
@@ -159,17 +153,14 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
     );
   }
 
-  Widget _buildLastPick(BuildContext context, Country? lastPick) {
+  Widget _buildLastPick(BuildContext context, Currency? lastPick) {
     if (lastPick == null) return SizedBox();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.all(15.0),
-          child: Text(
-            widget.theme?.lastPickText ?? 'LAST PICK',
-            style: TextStyle(color: widget.theme?.labelColor),
-          ),
+          child: Text('LAST PICK'),
         ),
         Container(
           color: Theme.of(context).cardTheme.color,
@@ -179,10 +170,9 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
               leading: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    lastPick.flagUri,
-                    package: 'country_list_pick',
-                    width: 32.0,
+                  Text(
+                    CurrencyUtils.currencyToEmoji(lastPick),
+                    style: TextStyle(fontSize: 25),
                   ),
                 ],
               ),
@@ -198,7 +188,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
     );
   }
 
-  Widget _getListCountry(Country e) {
+  Widget _getListCurrency(Currency e) {
     return Container(
       color: Theme.of(context).cardTheme.color,
       padding: EdgeInsets.only(right: 22),
@@ -208,14 +198,13 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
           leading: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                e.flagUri,
-                package: 'country_list_pick',
-                width: 30.0,
+              Text(
+                CurrencyUtils.currencyToEmoji(e),
+                style: TextStyle(fontSize: 25),
               ),
             ],
           ),
-          title: Text(e.name),
+          title: Text('${e.code} - ${e.name}'),
           onTap: () {
             _sendDataBack(context, e);
           },
@@ -245,15 +234,13 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor:
-                index == posSelected ? widget.theme?.alphabetSelectedBackgroundColor ?? Theme.of(context).colorScheme.primary : Colors.transparent,
+            backgroundColor: index == posSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
             child: Text(
               _alphabet[index],
               textAlign: TextAlign.center,
               style: (index == posSelected)
-                  ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold, color: widget.theme?.alphabetSelectedTextColor ?? Theme.of(context).colorScheme.background)
-                  : Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: widget.theme?.alphabetTextColor),
+                  ? Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.background)
+                  : Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
         ],

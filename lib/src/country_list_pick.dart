@@ -12,7 +12,6 @@ class CountryListPick extends StatefulWidget {
     this.pickerBuilder,
     this.countryBuilder,
     this.theme,
-    this.isCurrency = false,
   });
 
   final String? initialSelection;
@@ -21,7 +20,6 @@ class CountryListPick extends StatefulWidget {
   final Widget Function(BuildContext context, Country? country)? pickerBuilder;
   final CountryTheme? theme;
   final Widget Function(BuildContext context, Country country)? countryBuilder;
-  final bool isCurrency;
 
   @override
   _CountryListPickState createState() => _CountryListPickState();
@@ -42,10 +40,9 @@ class _CountryListPickState extends State<CountryListPick> {
         context,
         MaterialPageRoute(
           builder: (context) => CountrySelectionList(
-            initialSelection: selectedItem?.isoCode,
+            initialSelection: widget.initialSelection,
             theme: theme,
             countryBuilder: widget.countryBuilder,
-            isCurrency: widget.isCurrency,
           ),
         ));
 
