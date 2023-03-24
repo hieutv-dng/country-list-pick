@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'country_selection_theme.dart';
 import 'models/countries.dart';
 import 'models/country.dart';
+import 'models/country_utils.dart';
 
 class CountrySelectionList extends StatefulWidget {
   CountrySelectionList({
@@ -14,7 +15,7 @@ class CountrySelectionList extends StatefulWidget {
     this.isShowAlphabet = true,
   }) : super(key: key);
 
-  final Country? initialSelection;
+  final String? initialSelection;
   final CountryTheme? theme;
   final Widget Function(BuildContext context, Country)? countryBuilder;
   final bool isCurrency;
@@ -40,8 +41,17 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
   var _itemsizeheight = 50.0;
   double _offsetContainer = 0.0;
 
-  String get title => widget.isCurrency ? 'Currencies' : 'Countries';
-  String get searchHintText => widget.isCurrency ? 'Search currency' : 'Search country';
+  Country? get _lastCountryPick {
+    if (widget.initialSelection?.isEmpty ?? true) return null;
+    try {
+      return CountryUtils.getCountryByIsoCode(widget.initialSelection!);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String get _title => widget.isCurrency ? 'Currencies' : 'Countries';
+  String get _searchHintText => widget.isCurrency ? 'Search currency' : 'Search country';
 
   @override
   void initState() {
@@ -66,7 +76,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(title: Text(_title)),
       body: SafeArea(
         child: Container(
           color: Theme.of(context).colorScheme.background,
@@ -84,7 +94,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
                       child: Column(
                         children: [
                           _buildFilterField(context),
-                          _buildLastPick(context, widget.initialSelection),
+                          _buildLastPick(context, _lastCountryPick),
                         ],
                       ),
                     ),
@@ -145,7 +155,7 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
               errorBorder: InputBorder.none,
               disabledBorder: InputBorder.none,
               prefixIcon: Icon(Icons.search),
-              hintText: widget.theme?.searchHintText ?? searchHintText,
+              hintText: widget.theme?.searchHintText ?? _searchHintText,
             ),
             onChanged: _filterElements,
           ),
@@ -175,13 +185,13 @@ class _CountrySelectionListState extends State<CountrySelectionList> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    widget.initialSelection!.flagUri,
+                    lastPick.flagUri,
                     package: 'country_list_pick',
                     width: 32.0,
                   ),
                 ],
               ),
-              title: Text(widget.initialSelection!.name),
+              title: Text(lastPick.name),
               trailing: Padding(
                 padding: const EdgeInsets.only(right: 20.0),
                 child: Icon(Icons.check, color: Colors.green),

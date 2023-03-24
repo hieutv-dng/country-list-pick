@@ -42,7 +42,7 @@ class _CountryListPickState extends State<CountryListPick> {
         context,
         MaterialPageRoute(
           builder: (context) => CountrySelectionList(
-            initialSelection: selectedItem,
+            initialSelection: selectedItem?.isoCode,
             theme: theme,
             countryBuilder: widget.countryBuilder,
             isCurrency: widget.isCurrency,
